@@ -1,0 +1,12 @@
+services:
+
+  gitlab-server:
+    image: 'gitlab/gitlab-ce:latest'
+    container_name: gitlab-server
+    ports:
+      - '8088:80'
+    env_file:
+      - ./gitlab.env
+    volumes:
+      - ./gitlab/config:/etc/gitlab
+      - ./gitlab/data:/var/opt/gitlab

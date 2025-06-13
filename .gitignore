@@ -35,3 +35,10 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+
+# Ignore stored data & configs for gitlab
+/*.env
+/gitlab/config/*
+!/gitlab/config/.iron-deploy
+/gitlab/data/*
+!/gitlab/data/.iron-deploy
