@@ -42,3 +42,6 @@ terraform.rc
 !/gitlab/config/.iron-deploy
 /gitlab/data/*
 !/gitlab/data/.iron-deploy
+
+/maildev/data/*
+!/maildev/data/.iron-deploy
