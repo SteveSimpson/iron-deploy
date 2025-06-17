@@ -1,0 +1,39 @@
+services:
+  haproxy:
+    image: haproxy:latest
+    ports:
+      - "80:80"
+      - "1936:1936" # Stats UI
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+  maildev:
+    image: maildev/maildev
+    hostname: maildev
+    container_name: maildev
+    restart: always
+    environment:
+      - TZ=America/New_York
+      - MAILDEV_WEB_PORT=1080
+      - MAILDEV_SMTP_PORT=1025
+      - MAILDEV_MAIL_DIRECTORY=/var/data
+    ports:
+      - "8080:1080"
+      - "1025:1025"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+    volumes:
+      - ./maildev/data:/var/data
+
+  gitlab:
+    image: 'gitlab/gitlab-ce:latest'
+    hostname: gitlab
+    container_name: gitlab
+    ports:
+      - '8088:80'
+    env_file:
+      - ./gitlab.env
+    volumes:
+      - ./gitlab/config:/etc/gitlab
+      - ./gitlab/data:/var/opt/gitlab
