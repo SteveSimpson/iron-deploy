@@ -1,11 +1,25 @@
 services:
+# infra
+  logger:
+    hostname: logger
+    container_name: logger
+    image: amir20/dozzle:latest
+    ports:
+      - "8081:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
   haproxy:
     image: haproxy:latest
+    hostname: haproxy
+    container_name: haproxy
     ports:
       - "80:80"
+      - "443:443"
       - "1936:1936" # Stats UI
     volumes:
-      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+      - ./.ca/combined.pem:/etc/ssl/certs/combined.pem:ro
   maildev:
     image: maildev/maildev
     hostname: maildev
@@ -25,6 +39,17 @@ services:
         max-size: "1m"
     volumes:
       - ./maildev/data:/var/data
+  mockserver:
+    image: mockserver/mockserver:5.15.0
+    hostname: mockserver
+    container_name: mockserver
+    ports:
+      - 1080:1080
+    environment:
+      MOCKSERVER_PROPERTY_FILE: /config/mockserver.properties
+      MOCKSERVER_INITIALIZATION_JSON_PATH: /config/initializerJson.json
+    volumes:
+      - ./mockserver/config:/config
 
   gitlab:
     image: 'gitlab/gitlab-ce:latest'
@@ -37,3 +62,25 @@ services:
     volumes:
       - ./gitlab/config:/etc/gitlab
       - ./gitlab/data:/var/opt/gitlab
+
+  nifi:
+    hostname: nifi
+    container_name: nifi
+    image: apache/nifi:latest
+    env_file:
+      - ./nifi.env
+    ports:
+      - '8443:8443'
+    volumes:
+      - nifi_local_i1:/opt/nifi/nifi-current
+
+volumes:
+  nifi_local_i1:
+    driver: local
+  test_data:
+    driver: local
+  ls_data:
+    driver: local
+  kb_data:
+    driver: local
+
