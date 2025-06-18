@@ -45,3 +45,11 @@ terraform.rc
 
 /maildev/data/*
 !/maildev/data/.iron-deploy
+
+/.ca/*
+
+/mockserver/config/tls/*
+
+/nifi_local/i1/*
+/nifi_local/i2/*
+/nifi_local/i3/*
