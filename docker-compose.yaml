@@ -4,6 +4,8 @@ services:
     hostname: logger
     container_name: logger
     image: amir20/dozzle:latest
+    networks:
+      - ironnet
     ports:
       - "8081:8080"
     volumes:
@@ -13,6 +15,8 @@ services:
     image: haproxy:latest
     hostname: haproxy
     container_name: haproxy
+    networks:
+      - ironnet
     ports:
       - "80:80"
       - "443:443"
@@ -30,6 +34,8 @@ services:
       - MAILDEV_WEB_PORT=1080
       - MAILDEV_SMTP_PORT=1025
       - MAILDEV_MAIL_DIRECTORY=/var/data
+    networks:
+      - ironnet
     ports:
       - "8080:1080"
       - "1025:1025"
@@ -43,6 +49,8 @@ services:
     image: mockserver/mockserver:5.15.0
     hostname: mockserver
     container_name: mockserver
+    networks:
+      - ironnet
     ports:
       - 1080:1080
     environment:
@@ -55,13 +63,29 @@ services:
     image: 'gitlab/gitlab-ce:latest'
     hostname: gitlab
     container_name: gitlab
+    networks:
+      - ironnet
     ports:
       - '8088:80'
+      - '2022:22'
     env_file:
       - ./gitlab.env
     volumes:
       - ./gitlab/config:/etc/gitlab
       - ./gitlab/data:/var/opt/gitlab
+
+  gitlab-runner:
+    image: 'gitlab/gitlab-runner:latest'
+    networks:
+      - ironnet
+    env_file:
+      - ./gitlab-runner.env
+    volumes:
+      - ./.ca/ca.crt:/etc/gitlab-runner/certs/ca.crt:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./gitlab-runner/config:/etc/gitlab-runner
+    restart: unless-stopped
+
 
   nifi:
     hostname: nifi
@@ -69,6 +93,8 @@ services:
     image: apache/nifi:latest
     env_file:
       - ./nifi.env
+    networks:
+      - ironnet
     ports:
       - '8443:8443'
     volumes:
@@ -76,11 +102,8 @@ services:
 
 volumes:
   nifi_local_i1:
-    driver: local
-  test_data:
-    driver: local
-  ls_data:
-    driver: local
-  kb_data:
-    driver: local
 
+networks:
+  ironnet:
+    driver: bridge
+    name: ironnet

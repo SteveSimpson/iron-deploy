@@ -43,6 +43,9 @@ terraform.rc
 /gitlab/data/*
 !/gitlab/data/.iron-deploy
 
+/gitlab-runner/*
+!/gitlab-runner/.iron-deploy
+
 /maildev/data/*
 !/maildev/data/.iron-deploy
 
@@ -50,6 +53,4 @@ terraform.rc
 
 /mockserver/config/tls/*
 
-/nifi_local/i1/*
-/nifi_local/i2/*
-/nifi_local/i3/*
+
