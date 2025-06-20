@@ -4,6 +4,8 @@ services:
     hostname: logger
     container_name: logger
     image: amir20/dozzle:latest
+    networks:
+      - ironnet
     ports:
       - "8081:8080"
     volumes:
@@ -13,6 +15,8 @@ services:
     image: haproxy:latest
     hostname: haproxy
     container_name: haproxy
+    networks:
+      - ironnet
     ports:
       - "80:80"
       - "443:443"
@@ -30,6 +34,8 @@ services:
       - MAILDEV_WEB_PORT=1080
       - MAILDEV_SMTP_PORT=1025
       - MAILDEV_MAIL_DIRECTORY=/var/data
+    networks:
+      - ironnet
     ports:
       - "8080:1080"
       - "1025:1025"
@@ -43,6 +49,8 @@ services:
     image: mockserver/mockserver:5.15.0
     hostname: mockserver
     container_name: mockserver
+    networks:
+      - ironnet
     ports:
       - 1080:1080
     environment:
@@ -55,6 +63,8 @@ services:
     image: 'gitlab/gitlab-ce:latest'
     hostname: gitlab
     container_name: gitlab
+    networks:
+      - ironnet
     ports:
       - '8088:80'
     env_file:
@@ -69,62 +79,17 @@ services:
     image: apache/nifi:latest
     env_file:
       - ./nifi.env
+    networks:
+      - ironnet
     ports:
       - '8443:8443'
     volumes:
       - nifi_local_i1:/opt/nifi/nifi-current
 
-  elasticsearch:
-    image: elasticsearch:7.9.1
-    container_name: elasticsearch
-    ports:
-      - "9200:9200"
-      - "9300:9300"
-    volumes:
-      - test_data:/usr/share/elasticsearch/data/
-      - ./elk-config/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
-    environment:
-      - discovery.type=single-node
-      - http.host=0.0.0.0
-      - transport.host=0.0.0.0
-      - xpack.security.enabled=false
-      - xpack.monitoring.enabled=false
-      - cluster.name=elasticsearch
-      - bootstrap.memory_lock=true
-
-  logstash:
-    image: logstash:7.9.1 
-    container_name: logstash
-    ports:
-      - "5044:5044"
-      - "9600:9600"
-    volumes:
-      - ./elk/logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
-      - ./elk/logstash/logstash.yml:/usr/share/logstash/config/logstash.yml
-      - ls_data:/usr/share/logstash/data
-    depends_on:
-      - elasticsearch
-
-  kibana:
-    image: kibana:7.9.1
-    container_name: kibana
-    ports:
-      - "5601:5601"
-    volumes:
-      - ./elk/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
-      - kb_data:/usr/share/kibana/data
-    networks:
-      - elk
-    depends_on:
-      - elasticsearch
-
 volumes:
   nifi_local_i1:
-    driver: local
-  test_data:
-    driver: local
-  ls_data:
-    driver: local
-  kb_data:
-    driver: local
 
+networks:
+  ironnet:
+    driver: bridge
+    name: ironnet
