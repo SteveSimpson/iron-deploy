@@ -67,11 +67,25 @@ services:
       - ironnet
     ports:
       - '8088:80'
+      - '2022:22'
     env_file:
       - ./gitlab.env
     volumes:
       - ./gitlab/config:/etc/gitlab
       - ./gitlab/data:/var/opt/gitlab
+
+  gitlab-runner:
+    image: 'gitlab/gitlab-runner:latest'
+    networks:
+      - ironnet
+    env_file:
+      - ./gitlab-runner.env
+    volumes:
+      - ./.ca/ca.crt:/etc/gitlab-runner/certs/ca.crt:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./gitlab-runner/config:/etc/gitlab-runner
+    restart: unless-stopped
+
 
   nifi:
     hostname: nifi
